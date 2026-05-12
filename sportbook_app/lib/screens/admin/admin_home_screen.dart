@@ -64,6 +64,67 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     }
   }
 
+  void _confirmDeleteBooking(int id) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Booking'),
+        content: const Text('Apakah Anda yakin ingin menghapus booking ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _deleteBooking(id);
+            },
+            child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteAllBookings() async {
+    final response = await ApiService.delete('/admin/bookings');
+    if (!mounted) return;
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Semua booking berhasil dihapus!')),
+      );
+      _loadData();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal menghapus semua booking')),
+      );
+    }
+  }
+
+  void _confirmDeleteAll() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Semua Booking'),
+        content: const Text('Apakah Anda yakin ingin menghapus SEMUA booking? Tindakan ini tidak dapat dibatalkan.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _deleteAllBookings();
+            },
+            child: const Text('Hapus Semua', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _logout() async {
     await ApiService.clearToken();
     final prefs = await SharedPreferences.getInstance();
@@ -136,10 +197,31 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Semua Booking', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(color: const Color(0xFF0F172A).withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
-                        child: Text('${_bookings.length} Total', style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 12)),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(color: const Color(0xFF0F172A).withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+                            child: Text('${_bookings.length} Total', style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 12)),
+                          ),
+                          const SizedBox(width: 8),
+                          // ── Icon Hapus Semua ──
+                          GestureDetector(
+                            onTap: _bookings.isEmpty ? null : _confirmDeleteAll,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: _bookings.isEmpty ? Colors.grey[200] : Colors.red[50],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                Icons.delete_sweep,
+                                color: _bookings.isEmpty ? Colors.grey[400] : Colors.red,
+                                size: 22,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -225,6 +307,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                       Text('${booking.startTime} - ${booking.endTime}', style: TextStyle(color: Colors.grey[700])),
                                     ],
                                   ),
+                                  // ── Tombol aksi berdasarkan status ──
                                   if (booking.status == 'pending') ...[
                                     const SizedBox(height: 16),
                                     Row(
@@ -258,33 +341,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                         ),
                                       ],
                                     ),
-                                  ] else if (booking.status == 'confirmed') ...[
+                                  ] else if (booking.status == 'confirmed' ||
+                                             booking.status == 'rejected' ||
+                                             booking.status == 'cancelled') ...[
                                     const SizedBox(height: 16),
                                     SizedBox(
                                       width: double.infinity,
                                       child: ElevatedButton(
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) => AlertDialog(
-                                              title: const Text('Hapus Booking'),
-                                              content: const Text('Apakah Anda yakin ingin menghapus booking ini?'),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () => Navigator.pop(context),
-                                                  child: const Text('Batal'),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                    _deleteBooking(booking.id);
-                                                  },
-                                                  child: const Text('Hapus', style: TextStyle(color: Colors.red)),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
+                                        onPressed: () => _confirmDeleteBooking(booking.id),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.red[50],
                                           foregroundColor: Colors.red,

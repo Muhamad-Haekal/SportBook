@@ -1,13 +1,14 @@
 package handlers
 
 import (
-	"fmt"
-	"sportbook/config"
-	"sportbook/models"
-	"strconv"
-	"strings"
+    "fmt"
+    "sportbook/config"
+    "sportbook/models"
+    "strconv"
+    "strings"
 
-	"github.com/gofiber/fiber/v2"
+    "github.com/gofiber/fiber/v2"
+    "gorm.io/gorm"
 )
 
 func calculateHours(start, end string) int {
