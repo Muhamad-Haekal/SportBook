@@ -36,4 +36,6 @@ func SetupRoutes(app *fiber.App) {
 	admin.Delete("/fields/:id", handlers.DeleteField)
 	admin.Get("/bookings", handlers.GetAllBookings)
 	admin.Put("/bookings/:id/status", handlers.UpdateBookingStatus)
+	admin.Delete("/bookings/:id", handlers.DeleteBooking)
+	admin.Delete("/bookings", handlers.DeleteAllBookings)
 }

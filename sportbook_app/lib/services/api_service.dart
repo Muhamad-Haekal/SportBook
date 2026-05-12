@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:crypto/crypto.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://10.10.18.120:8080';
+  static const String baseUrl = 'http://172.18.193.80:8080';
 
   static Future<http.Response> login(String username, String password) async {
     var bytes = utf8.encode(password);

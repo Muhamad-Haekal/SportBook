@@ -147,3 +147,22 @@ func UpdateBookingStatus(c *fiber.Ctx) error {
 	config.DB.Save(&booking)
 	return c.JSON(fiber.Map{"message": "Status updated", "booking": booking})
 }
+
+func DeleteBooking(c *fiber.Ctx) error {
+	id := c.Params("id")
+	
+	var booking models.Booking
+	if err := config.DB.First(&booking, id).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"message": "Booking not found"})
+	}
+
+	config.DB.Delete(&booking)
+	return c.JSON(fiber.Map{"message": "Booking deleted"})
+}
+
+func DeleteAllBookings(c *fiber.Ctx) error {
+	if err := config.DB.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.Booking{}).Error; err != nil {
+		return c.Status(500).JSON(fiber.Map{"message": "Gagal menghapus semua booking"})
+	}
+	return c.JSON(fiber.Map{"message": "Semua booking berhasil dihapus"})
+}

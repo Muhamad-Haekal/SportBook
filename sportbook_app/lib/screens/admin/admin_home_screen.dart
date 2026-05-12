@@ -48,6 +48,22 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     }
   }
 
+  Future<void> _deleteBooking(int id) async {
+    final response = await ApiService.delete('/admin/bookings/$id');
+    if (response.statusCode == 200) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Booking berhasil dihapus!')),
+      );
+      _loadData();
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal menghapus booking')),
+      );
+    }
+  }
+
   Future<void> _logout() async {
     await ApiService.clearToken();
     final prefs = await SharedPreferences.getInstance();
@@ -241,6 +257,43 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                           ),
                                         ),
                                       ],
+                                    ),
+                                  ] else if (booking.status == 'confirmed') ...[
+                                    const SizedBox(height: 16),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: const Text('Hapus Booking'),
+                                              content: const Text('Apakah Anda yakin ingin menghapus booking ini?'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: const Text('Batal'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    _deleteBooking(booking.id);
+                                                  },
+                                                  child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red[50],
+                                          foregroundColor: Colors.red,
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                        ),
+                                        child: const Text('Hapus Booking', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      ),
                                     ),
                                   ],
                                 ],
