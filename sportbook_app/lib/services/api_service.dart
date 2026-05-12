@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:crypto/crypto.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://10.10.18.30:8080';
+  static const String baseUrl = 'https://footpath-audacious-garment.ngrok-free.dev';
 
   static Future<http.Response> login(String username, String password) async {
     var bytes = utf8.encode(password);

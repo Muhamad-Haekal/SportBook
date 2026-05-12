@@ -205,7 +205,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             child: Text('${_bookings.length} Total', style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 12)),
                           ),
                           const SizedBox(width: 8),
-                          // ── Icon Hapus Semua ──
                           GestureDetector(
                             onTap: _bookings.isEmpty ? null : _confirmDeleteAll,
                             child: Container(
@@ -305,6 +304,45 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                       const Icon(Icons.access_time, size: 16, color: Colors.grey),
                                       const SizedBox(width: 8),
                                       Text('${booking.startTime} - ${booking.endTime}', style: TextStyle(color: Colors.grey[700])),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  // ── Badge Metode Pembayaran + Total Harga ──
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: booking.paymentMethod.toLowerCase() == 'qris' ? Colors.blue[50] : Colors.green[50],
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(
+                                            color: booking.paymentMethod.toLowerCase() == 'qris' ? Colors.blue[300]! : Colors.green[300]!,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              booking.paymentMethod.toLowerCase() == 'qris' ? Icons.qr_code : Icons.payments_outlined,
+                                              size: 14,
+                                              color: booking.paymentMethod.toLowerCase() == 'qris' ? Colors.blue[700] : Colors.green[700],
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              booking.paymentMethod.toUpperCase(),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: booking.paymentMethod.toLowerCase() == 'qris' ? Colors.blue[700] : Colors.green[700],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Text(
+                                        'Rp ${booking.totalPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F172A)),
+                                      ),
                                     ],
                                   ),
                                   // ── Tombol aksi berdasarkan status ──
